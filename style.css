@@ -1,0 +1,5 @@
+:global(#canvas) {
+  height: 250px;
+  width: 250px;
+  background: #d8d8d8;
+}
