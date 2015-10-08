@@ -17,6 +17,8 @@ class Config {
     this.width = this.cols * this.cellWidth + 2 * this.padding;
     this.height = this.rows * this.cellHeight + 2 * this.padding;
     this.backgroundColor = '#f0f0f0';
+    this.color = 'DodgerBlue';
+    this.highlightColor = 'rgba(30, 144, 255, 0.2)';
   }
 }
 
@@ -34,6 +36,7 @@ class App {
     this.parentSelector = parentSelector;
     this.canvas = null;
     this.ctx = null;
+    this.previousCell = null;
     this.cells = new Map();
     for (let i = 0; i < this.config.rows * this.config.cols; i++) {
       let x = (i % this.config.cols) * this.config.cellWidth
@@ -53,8 +56,8 @@ class App {
     if (x < this.config.padding || y < this.config.padding) {
       return true
     }
-    if (x > (this.config.width - this.config.padding)
-        || y > (this.config.height - this.config.padding)) {
+    if (x > (this.config.width - this.config.padding - 1)
+        || y > (this.config.height - this.config.padding - 1)) {
       return true;
     }
     return false;
@@ -70,10 +73,20 @@ class App {
     return this.cells.get(id);
   }
 
+  removeHighlight(cell) {
+    this.drawRect(
+      cell.x,
+      cell.y,
+      this.config.cellWidth,
+      this.config.cellHeight,
+      cell.isActive ? this.config.color : this.config.backgroundColor
+    );
+  }
+
   run() {
     this.canvas = newElement('<canvas width="{w}" height={h}></canvas>', {
-      w: this.config.width + 2 * this.config.padding,
-      h: this.config.height + 2 * this.config.padding
+      w: this.config.width,
+      h: this.config.height
     });
 
     append(document.querySelector(this.parentSelector), this.canvas);
@@ -83,11 +96,53 @@ class App {
     this.drawRect(0,0, this.config.width, this.config.height,
       this.config.backgroundColor);
 
-    this.canvas.addEventListener('mousemove', (e) => {
+    this.canvas.addEventListener('click', (e) => {
       let cell = this.getCellByCoords(e.clientX, e.clientY);
       if (cell === null) {
         return;
       }
+      this.drawRect(
+        cell.x,
+        cell.y,
+        this.config.cellWidth,
+        this.config.cellHeight,
+        cell.isActive ? this.config.backgroundColor : this.config.color
+      );
+      cell.isActive = ! cell.isActive;
+    });
+
+    this.canvas.addEventListener('mousemove', (e) => {
+      let cell = this.getCellByCoords(e.clientX, e.clientY);
+      if (cell === null || cell === this.previousCell) {
+        return;
+      }
+      // remove highlight from cell we just exited
+      if (this.previousCell !== null) {
+        this.removeHighlight(this.previousCell);
+      }
+      this.previousCell = cell;
+      this.drawRect(
+        cell.x,
+        cell.y,
+        this.config.cellWidth,
+        this.config.cellHeight,
+        this.config.backgroundColor
+      );
+      this.drawRect(
+        cell.x,
+        cell.y,
+        this.config.cellWidth,
+        this.config.cellHeight,
+        this.config.highlightColor
+      );
+
+    });
+
+    this.canvas.addEventListener('mouseleave', (e) => {
+      if (this.previousCell !== null) {
+        this.removeHighlight(this.previousCell);
+      }
+      this.previousCell = null;
     });
   }
 }
