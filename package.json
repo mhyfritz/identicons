@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "deep-equal": "^1.0.1",
-    "domready": "^1.0.8"
+    "domready": "^1.0.8",
+    "insert": "^1.0.1",
+    "new-element": "0.0.2"
   }
 }
