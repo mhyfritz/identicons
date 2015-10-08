@@ -1,77 +1,61 @@
 'use strict';
 
 require('./style.css');
+
 let domready = require('domready');
 let equal = require('deep-equal');
 
-let backgroundColor = '#f0f0f0';
-let col = 'rgb(30, 144, 255)';
-let highlightColor = 'rgba(30, 144, 255, 0.2)';
-
-domready(() => {
-  let canvas = document.getElementById('canvas'); 
-  let canvasDims = canvas.getBoundingClientRect();
-  let cellWidth = 70;
-  let cellHeight = cellWidth;
-  let ctx = canvas.getContext('2d');
-  let activeCells = new Set();
-  let previousCell = null;
-
-  ctx.fillStyle = backgroundColor;
-  ctx.fillRect(0, 0, canvasDims.width, canvasDims.height);
-
-  canvas.addEventListener('click', (e) => {
-    let cell = cellData(e.clientX, e.clientY);
-
-    if (activeCells.has(cell.id)) {
-      ctx.fillStyle = backgroundColor;
-      activeCells.delete(cell.id);
-    } else {
-      ctx.fillStyle = col;
-      activeCells.add(cell.id);
-    }
-    ctx.fillRect(cell.rectX, cell.rectY, cellWidth, cellHeight);
-  });
-
-  canvas.addEventListener('mousemove', (e) => {
-    let cell = cellData(e.clientX, e.clientY);
-    if (equal(cell, previousCell)) {
-      return;
-    }
-    if (previousCell !== null) {
-      ctx.fillStyle = activeCells.has(previousCell.id) ? col : backgroundColor;
-      ctx.fillRect(previousCell.rectX, previousCell.rectY, cellWidth, cellHeight);
-    }
-    console.log(cell, previousCell);
-    previousCell = cell;
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(cell.rectX, cell.rectY, cellWidth, cellHeight);
-    ctx.fillStyle = highlightColor;
-    ctx.fillRect(cell.rectX, cell.rectY, cellWidth, cellHeight);
-  });
-
-  canvas.addEventListener('mouseleave', (e) => {
-    ctx.fillStyle = activeCells.has(previousCell.id) ? col : backgroundColor;
-    ctx.fillRect(previousCell.rectX, previousCell.rectY, cellWidth, cellHeight);
-    previousCell = null;
-  });
-
-  function cellData(mouseX, mouseY) {
-    let rect = canvas.getBoundingClientRect();
-    let x = mouseX - rect.left;
-    let y = mouseY - rect.top;
-    let row = Math.floor(y / cellHeight);
-    let col = Math.floor(x / cellWidth);
-    let id = row * 5 + col;
-    let rectX = col * cellWidth;
-    let rectY = row * cellHeight;
-
-    return {
-      row: row,
-      col: col,
-      id: id,
-      rectX: rectX,
-      rectY: rectY
-    };
+class Config {
+  constructor() {
+    this.cellWidth = 70;
+    this.cellHeight = this.cellWidth;
+    this.rows = 5;
+    this.cols = this.rows;
+    this.padding = this.cellWidth / 2;
+    this.width = this.cols * this.cellWidth + 2 * this.padding;
+    this.height = this.rows * this.cellHeight + 2 * this.padding;
+    this.backgroundColor = '#f0f0f0';
   }
-});
+}
+
+class Cell {
+  constructor(x, y, isActive) {
+    this.x = x;
+    this.y = y;
+    this.isActive = isActive;
+  }
+}
+
+class App {
+  constructor(config, selector) {
+    this.config = config;
+    this.selector = selector;
+    this.canvas = null;
+    this.ctx = null;
+    this.cells = new Map();
+    for (let i = 0; i < this.config.rows * this.config.cols; i++) {
+      let x = i * this.config.cols * this.config.cellWidth + this.config.padding;
+      let y = i * this.config.rows * this.config.cellHeight + this.config.padding;
+      this.cells.set(i, new Cell(x, y, false));
+    }
+  }
+
+  drawRect(x, y, width, height, color) {
+    console.log(x, y, width, height, color);
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(x, y, width, height);
+  }
+
+  run() {
+    this.canvas = document.querySelector(this.selector);
+    this.ctx = this.canvas.getContext('2d');
+
+    this.drawRect(0,0, this.config.width, this.config.height,
+      this.config.backgroundColor);
+  }
+}
+
+let config = new Config();
+let app = new App(config, '#canvas');
+
+domready(() => { app.run() });
