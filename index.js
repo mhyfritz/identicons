@@ -4,6 +4,7 @@ let domready = require('domready');
 let append = require('insert/append');
 let newElement = require('new-element');
 let crayons = require('crayola-colors');
+let md5 = require('md5');
 
 let styles = require('./style.css');
 
@@ -169,6 +170,52 @@ class App {
     }
   }
 
+  // TODO generic method for grids other than 5 x 5
+  digest(string) {
+    this.resetCanvas();
+    let hash = md5(string);
+    let palette = Object.keys(crayons);
+    let i = parseInt(hash.substr(0, 2), 16) % palette.length;
+    let color = `#${crayons[palette[i]]}`;
+    let bits = [];
+    for (i = 2; i < 32; i += 2) {
+      let substring = hash.substring(i, i + 2);
+      console.log(substring);
+      bits.push(parseInt(substring, 16) % 2 === 0);
+    }
+    console.log(string, hash, bits);
+    // TODO Dedupe code (randomPattern)
+    for (i = 0; i <= this.cells.size; i++) {
+      let cell = this.cells.get(i);
+      let col = i % this.config.cols;
+      let mirrorAxis = Math.floor(this.config.cols / 2);
+      if (col <= mirrorAxis) {
+        let bit = bits.shift();
+        if (bit) {
+          cell.isActive = true;
+          this.drawRect(
+            cell.x,
+            cell.y,
+            this.config.cellWidth,
+            this.config.cellHeight,
+            color
+          );
+          let mirrorCell = this.getMirrorCell(cell);
+          if (mirrorCell) {
+            mirrorCell.isActive = true;
+            this.drawRect(
+              mirrorCell.x,
+              mirrorCell.y,
+              this.config.cellWidth,
+              this.config.cellHeight,
+              color
+            );
+          }
+        }
+      }
+    }
+  }
+
   getRelativeCoords(x, y) {
     let relX = x - this.canvasClientRect.left;
     let relY = y - this.canvasClientRect.top;
@@ -287,6 +334,13 @@ class App {
 
     document.querySelector('.js-reset').addEventListener('click', (e) => {
       this.resetCanvas();
+    });
+
+    document.querySelector('.js-digest').addEventListener('click', (e) => {
+      let input = document.querySelector('.js-digest-input').value.trim();
+      if (input) {
+        this.digest(input);
+      }
     });
 
     console.log(this);

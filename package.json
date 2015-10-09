@@ -18,9 +18,11 @@
     "webpack": "^1.12.2"
   },
   "dependencies": {
-    "deep-equal": "^1.0.1",
+    "crayola-colors": "^1.0.1",
     "domready": "^1.0.8",
     "insert": "^1.0.1",
-    "new-element": "0.0.2"
+    "md5": "^2.0.0",
+    "new-element": "0.0.2",
+    "spectrum-colorpicker": "^1.7.1"
   }
 }
