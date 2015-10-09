@@ -1,11 +1,11 @@
 'use strict';
 
-require('./style.css');
-
 let domready = require('domready');
 let equal = require('deep-equal');
 let append = require('insert/append');
 let newElement = require('new-element');
+
+let styles = require('./style.css');
 
 class Config {
   constructor() {
@@ -83,6 +83,22 @@ class App {
     );
   }
 
+  exportToPng() {
+    let dataUri = this.canvas.toDataURL();
+    let win = window.open(dataUri, '_blank');
+    win.focus();
+  }
+
+  resetCanvas() {
+    this.drawRect(
+      0,
+      0,
+      this.config.width,
+      this.config.height,
+      this.config.backgroundColor
+    );
+  }
+
   run() {
     this.canvas = newElement('<canvas width="{w}" height={h}></canvas>', {
       w: this.config.width,
@@ -93,8 +109,7 @@ class App {
 
     this.ctx = this.canvas.getContext('2d');
 
-    this.drawRect(0,0, this.config.width, this.config.height,
-      this.config.backgroundColor);
+    this.resetCanvas();
 
     this.canvas.addEventListener('click', (e) => {
       let cell = this.getCellByCoords(e.clientX, e.clientY);
@@ -144,10 +159,20 @@ class App {
       }
       this.previousCell = null;
     });
+
+    document.querySelector('.js-export').addEventListener('click', (e) => {
+      this.exportToPng();
+    });
+
+    document.querySelector('.js-reset').addEventListener('click', (e) => {
+      this.resetCanvas();
+    });
+
+    console.log(this);
   }
 }
 
 let config = new Config();
-let app = new App(config, 'body');
+let app = new App(config, '.canvas-container');
 
 domready(() => { app.run() });
