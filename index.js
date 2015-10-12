@@ -175,7 +175,8 @@ class App {
     this.resetCanvas();
     let hash = md5(string);
     let palette = Object.keys(crayons);
-    let i = parseInt(hash.substr(0, 2), 16) % palette.length;
+    // TODO use first two chars for offset into cells
+    let i = parseInt(hash, 16) % palette.length;
     let color = `#${crayons[palette[i]]}`;
     let bits = [];
     for (i = 2; i < 32; i += 2) {
