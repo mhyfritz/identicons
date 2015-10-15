@@ -45,7 +45,6 @@ class Config {
     this.highlightAlpha = 0.2;
     this.highlightColor = hexToRgbaString(this.color, this.highlightAlpha);
     this.mirror = true;
-    console.log(this);
   }
 }
 
@@ -207,14 +206,11 @@ class App {
     this.config.color = `#${crayons[palette[i]]}`;
     this.config.highlightColor = hexToRgbaString(this.config.color,
       this.config.highlightAlpha);
-    console.log(this.config.color);
     let bits = [];
     for (i = 2; i < 32; i += 2) {
       let substring = hash.substring(i, i + 2);
-      console.log(substring);
       bits.push(parseInt(substring, 16) % 2 === 0);
     }
-    console.log(string, hash, bits);
     // TODO Dedupe code (randomPattern)
     for (i = 0; i <= this.cells.size; i++) {
       let cell = this.cells.get(i);
@@ -387,8 +383,7 @@ class App {
         }
       }
     });
-
-    console.log(this);
+    //console.log(this);
   }
 }
 
