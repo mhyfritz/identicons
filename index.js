@@ -159,9 +159,15 @@ class App {
     this.resetCanvas();
     let palette = Object.keys(crayons);
     let i = Math.floor(Math.random() * palette.length);
+    let inputContainer = document.querySelector('.js-input-container');
+    let input = document.querySelector('.js-color-input');
+
     this.config.color = `#${crayons[palette[i]]}`;
     this.config.highlightColor = hexToRgbaString(this.config.color,
       this.config.highlightAlpha);
+    inputContainer.style.backgroundColor = this.config.color;
+    input.value = this.config.color;
+
     // TODO don't hard code number of bits
     let bits = this.randomBits(15);
     // TODO double check that Map is ordered
@@ -206,6 +212,10 @@ class App {
     this.config.color = `#${crayons[palette[i]]}`;
     this.config.highlightColor = hexToRgbaString(this.config.color,
       this.config.highlightAlpha);
+    let inputContainer = document.querySelector('.js-input-container');
+    let input = document.querySelector('.js-color-input');
+    inputContainer.style.backgroundColor = this.config.color;
+    input.value = this.config.color;
     let bits = [];
     for (i = 2; i < 32; i += 2) {
       let substring = hash.substring(i, i + 2);
@@ -250,6 +260,12 @@ class App {
   }
 
   run() {
+    let inputContainer = document.querySelector('.js-input-container');
+    let input = document.querySelector('.js-color-input');
+
+    inputContainer.style.backgroundColor = this.config.color;
+    input.value = this.config.color;
+
     this.canvas = newElement('<canvas width="{w}" height={h}></canvas>', {
       w: this.config.width,
       h: this.config.height
@@ -375,14 +391,37 @@ class App {
       }
     });
 
-    document.querySelector('.js-digest-input').addEventListener('keyup', (e) => {
-      if (e.keyIdentifier === 'Enter') {
+    document.querySelector('.js-digest-input').addEventListener('keypress', (e) => {
+      if (e.keyCode === 13) {
         let input = document.querySelector('.js-digest-input').value.trim();
         if (input) {
           this.digest(input);
         }
       }
     });
+
+    document.querySelector('.js-color-input').addEventListener('change', (e) => {
+      let newColor = e.target.value;
+      let inputContainer = document.querySelector('.js-input-container');
+
+      inputContainer.style.backgroundColor = newColor;
+      this.config.color = newColor;
+      this.config.highlightColor = hexToRgbaString(this.config.color,
+        this.config.highlightAlpha);
+
+      for (let cell of this.cells.values()) {
+        if (cell.isActive) {
+          this.drawRect(
+            cell.x,
+            cell.y,
+            this.config.cellWidth,
+            this.config.cellHeight,
+            this.config.color
+          );
+        }
+      }
+    });
+
     //console.log(this);
   }
 }
