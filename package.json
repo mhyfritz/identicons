@@ -1,7 +1,7 @@
 {
-  "name": "github-identicon",
-  "version": "1.0.0",
-  "description": "",
+  "name": "identicons",
+  "version": "0.0.1",
+  "description": "GitHub-style identicon generator",
   "main": "index.js",
   "scripts": {
     "build": "webpack -p",
@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^5.8.25",
     "babel-loader": "^5.3.2",
@@ -25,7 +25,6 @@
     "md5": "^2.0.0",
     "new-element": "0.0.2",
     "postcss-loader": "^0.6.0",
-    "precss": "^1.2.3",
-    "spectrum-colorpicker": "^1.7.1"
+    "precss": "^1.2.3"
   }
 }
