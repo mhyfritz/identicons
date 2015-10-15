@@ -8,6 +8,28 @@ let md5 = require('md5');
 
 let styles = require('./style.css');
 
+function hexToRgb(hex) {
+  // TODO better error
+  if (! hex.startsWith('#') || hex.length !== 7) {
+    throw 'HEX value error';
+  }
+  let r = parseInt(hex.substring(1, 3), 16);
+  let g = parseInt(hex.substring(3, 5), 16);
+  let b = parseInt(hex.substring(5, 7), 16);
+
+  return { r, g, b };
+}
+
+function hexToRgba(hex, alpha) {
+  let { r, g, b } = hexToRgb(hex);
+  return { r, g, b, a: alpha };
+}
+
+function hexToRgbaString(hex, alpha) {
+  let { r, g, b, a } = hexToRgba(hex, alpha);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 class Config {
   constructor() {
     this.cellWidth = 70;
@@ -18,9 +40,12 @@ class Config {
     this.width = this.cols * this.cellWidth + 2 * this.padding;
     this.height = this.rows * this.cellHeight + 2 * this.padding;
     this.backgroundColor = '#f0f0f0';
-    this.color = 'DodgerBlue';
-    this.highlightColor = 'rgba(30, 144, 255, 0.2)';
+    this.defaultColor = '#1e90ff';
+    this.color = this.defaultColor;
+    this.highlightAlpha = 0.2;
+    this.highlightColor = hexToRgbaString(this.color, this.highlightAlpha);
     this.mirror = true;
+    console.log(this);
   }
 }
 
@@ -135,7 +160,9 @@ class App {
     this.resetCanvas();
     let palette = Object.keys(crayons);
     let i = Math.floor(Math.random() * palette.length);
-    let color = `#${crayons[palette[i]]}`;
+    this.config.color = `#${crayons[palette[i]]}`;
+    this.config.highlightColor = hexToRgbaString(this.config.color,
+      this.config.highlightAlpha);
     // TODO don't hard code number of bits
     let bits = this.randomBits(15);
     // TODO double check that Map is ordered
@@ -152,7 +179,7 @@ class App {
             cell.y,
             this.config.cellWidth,
             this.config.cellHeight,
-            color
+            this.config.color
           );
           let mirrorCell = this.getMirrorCell(cell);
           if (mirrorCell) {
@@ -162,7 +189,7 @@ class App {
               mirrorCell.y,
               this.config.cellWidth,
               this.config.cellHeight,
-              color
+              this.config.color
             );
           }
         }
@@ -177,7 +204,10 @@ class App {
     let palette = Object.keys(crayons);
     // TODO use first two chars for offset into cells
     let i = parseInt(hash, 16) % palette.length;
-    let color = `#${crayons[palette[i]]}`;
+    this.config.color = `#${crayons[palette[i]]}`;
+    this.config.highlightColor = hexToRgbaString(this.config.color,
+      this.config.highlightAlpha);
+    console.log(this.config.color);
     let bits = [];
     for (i = 2; i < 32; i += 2) {
       let substring = hash.substring(i, i + 2);
@@ -199,7 +229,7 @@ class App {
             cell.y,
             this.config.cellWidth,
             this.config.cellHeight,
-            color
+            this.config.color
           );
           let mirrorCell = this.getMirrorCell(cell);
           if (mirrorCell) {
@@ -209,7 +239,7 @@ class App {
               mirrorCell.y,
               this.config.cellWidth,
               this.config.cellHeight,
-              color
+              this.config.color
             );
           }
         }
@@ -330,10 +360,15 @@ class App {
     });
 
     document.querySelector('.js-random').addEventListener('click', (e) => {
+      document.querySelector('.js-digest-input').value = '';
       this.randomPattern();
     });
 
     document.querySelector('.js-reset').addEventListener('click', (e) => {
+      document.querySelector('.js-digest-input').value = '';
+      this.config.color = this.config.defaultColor;
+      this.config.highlightColor = hexToRgbaString(this.config.color,
+        this.config.highlightAlpha);
       this.resetCanvas();
     });
 
@@ -341,6 +376,15 @@ class App {
       let input = document.querySelector('.js-digest-input').value.trim();
       if (input) {
         this.digest(input);
+      }
+    });
+
+    document.querySelector('.js-digest-input').addEventListener('keyup', (e) => {
+      if (e.keyIdentifier === 'Enter') {
+        let input = document.querySelector('.js-digest-input').value.trim();
+        if (input) {
+          this.digest(input);
+        }
       }
     });
 
