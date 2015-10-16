@@ -18,8 +18,13 @@ body {
 }
 
 .btn,
+input.digest,
 .input-container {
   border-radius: 3px;
+}
+
+.btn,
+.input-container {
   box-sizing: border-box;
   border: 1px solid #fff;
   cursor: pointer;
@@ -34,6 +39,8 @@ body {
 }
 
 input[type="color"] {
+  height: 0;
+  width: 0;
   visibility: hidden;
 }
 

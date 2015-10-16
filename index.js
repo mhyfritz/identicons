@@ -3,7 +3,7 @@
 let domready = require('domready');
 let append = require('insert/append');
 let newElement = require('new-element');
-let crayons = require('crayola-colors');
+let please = require('pleasejs');
 let md5 = require('md5');
 
 let styles = require('./style.css');
@@ -28,6 +28,11 @@ function hexToRgba(hex, alpha) {
 function hexToRgbaString(hex, alpha) {
   let { r, g, b, a } = hexToRgba(hex, alpha);
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function generateColor(seed=null) {
+  let color = please.make_color({ seed })[0];
+  return color;
 }
 
 class Config {
@@ -157,21 +162,11 @@ class App {
 
   randomPattern() {
     this.resetCanvas();
-    let palette = Object.keys(crayons);
-    let i = Math.floor(Math.random() * palette.length);
-    let inputContainer = document.querySelector('.js-input-container');
-    let input = document.querySelector('.js-color-input');
-
-    this.config.color = `#${crayons[palette[i]]}`;
-    this.config.highlightColor = hexToRgbaString(this.config.color,
-      this.config.highlightAlpha);
-    inputContainer.style.backgroundColor = this.config.color;
-    input.value = this.config.color;
 
     // TODO don't hard code number of bits
     let bits = this.randomBits(15);
     // TODO double check that Map is ordered
-    for (i = 0; i <= this.cells.size; i++) {
+    for (let i = 0; i <= this.cells.size; i++) {
       let cell = this.cells.get(i);
       let col = i % this.config.cols;
       let mirrorAxis = Math.floor(this.config.cols / 2);
@@ -206,10 +201,8 @@ class App {
   digest(string) {
     this.resetCanvas();
     let hash = md5(string);
-    let palette = Object.keys(crayons);
     // TODO use first two chars for offset into cells
-    let i = parseInt(hash, 16) % palette.length;
-    this.config.color = `#${crayons[palette[i]]}`;
+    this.config.color = generateColor(hash);
     this.config.highlightColor = hexToRgbaString(this.config.color,
       this.config.highlightAlpha);
     let inputContainer = document.querySelector('.js-input-container');
@@ -217,12 +210,12 @@ class App {
     inputContainer.style.backgroundColor = this.config.color;
     input.value = this.config.color;
     let bits = [];
-    for (i = 2; i < 32; i += 2) {
+    for (let i = 2; i < 32; i += 2) {
       let substring = hash.substring(i, i + 2);
       bits.push(parseInt(substring, 16) % 2 === 0);
     }
     // TODO Dedupe code (randomPattern)
-    for (i = 0; i <= this.cells.size; i++) {
+    for (let i = 0; i <= this.cells.size; i++) {
       let cell = this.cells.get(i);
       let col = i % this.config.cols;
       let mirrorAxis = Math.floor(this.config.cols / 2);
@@ -371,9 +364,43 @@ class App {
       this.exportToPng();
     });
 
-    document.querySelector('.js-random').addEventListener('click', (e) => {
+    document.querySelector('.js-random-pattern').addEventListener('click', (e) => {
       document.querySelector('.js-digest-input').value = '';
       this.randomPattern();
+    });
+
+    document.querySelector('.js-random').addEventListener('click', (e) => {
+      let inputContainer = document.querySelector('.js-input-container');
+      let input = document.querySelector('.js-color-input');
+
+      this.config.color = generateColor();
+      this.config.highlightColor = hexToRgbaString(this.config.color,
+        this.config.highlightAlpha);
+      inputContainer.style.backgroundColor = this.config.color;
+      input.value = this.config.color;
+      this.randomPattern();
+    });
+
+    document.querySelector('.js-random-color').addEventListener('click', (e) => {
+      let color = generateColor();
+      this.config.color = color;
+      this.config.highlightColor = hexToRgbaString(this.config.color,
+        this.config.highlightAlpha);
+      let inputContainer = document.querySelector('.js-input-container');
+      let input = document.querySelector('.js-color-input');
+      inputContainer.style.backgroundColor = this.config.color;
+      input.value = this.config.color;
+      for (let cell of this.cells.values()) {
+        if (cell.isActive) {
+          this.drawRect(
+            cell.x,
+            cell.y,
+            this.config.cellWidth,
+            this.config.cellHeight,
+            this.config.color
+          );
+        }
+      }
     });
 
     document.querySelector('.js-reset').addEventListener('click', (e) => {
@@ -381,6 +408,10 @@ class App {
       this.config.color = this.config.defaultColor;
       this.config.highlightColor = hexToRgbaString(this.config.color,
         this.config.highlightAlpha);
+      let inputContainer = document.querySelector('.js-input-container');
+      let input = document.querySelector('.js-color-input');
+      inputContainer.style.backgroundColor = this.config.color;
+      input.value = this.config.color;
       this.resetCanvas();
     });
 

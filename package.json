@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "autoprefixer": "^6.0.3",
-    "crayola-colors": "^1.0.1",
     "domready": "^1.0.8",
     "insert": "^1.0.1",
     "md5": "^2.0.0",
     "new-element": "0.0.2",
+    "pleasejs": "^0.4.2",
     "postcss-loader": "^0.6.0",
     "precss": "^1.2.3"
   }
