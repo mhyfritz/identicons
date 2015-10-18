@@ -1,5 +1,7 @@
 'use strict';
 
+require("babel-core/polyfill");
+
 let domready = require('domready');
 let append = require('insert/append');
 let newElement = require('new-element');
