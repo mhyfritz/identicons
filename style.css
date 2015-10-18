@@ -1,9 +1,11 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
+$background-color: rgb(30, 30, 35);
+
 body {
   margin: 0;
   padding: 0;
-  background-color: rgb(30, 30, 35);
+  background-color: $background-color;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -14,7 +16,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  //align-items: center;
 }
 
 .btn,
@@ -54,11 +55,14 @@ input[type="color"] {
   user-select: none;
   font-family: "Roboto", "Helvetica Neue", "Helvetica", sans-serif;
   font-weight: 300;
-}
-
-.btn:hover {
-  color: rgb(30, 30, 35);
-  background-color: #fff;
+  &:hover {
+    color: $background-color;
+    background-color: #fff;
+  }
+  &.digest {
+    width: 25%;
+    display: inline-block;
+  }
 }
 
 .canvas-container {
@@ -77,23 +81,20 @@ canvas {
   margin: 5px;
 }
 
+$input-digest-margin-right: 2px;
+
 input.digest {
   height: 32px;
-  width: calc(75% - 2px);
-  margin: 0 2px 0 0;
+  width: calc(75% - $input-digest-margin-right);
+  margin: 0 $input-digest-margin-right 0 0;
   padding: 0 10px;
   box-sizing: border-box;
   border: 1px solid #fff;
-  background-color: rgb(30, 30, 35);
+  background-color: $background-color;
   color: #fff;
   font-family: "Roboto", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
   &:focus {
     outline: 1px solid Yellow;
   }
-}
-
-.btn.digest {
-  width: 25%;
-  display: inline-block;
 }
