@@ -6,13 +6,9 @@ let newElement = require('new-element');
 let please = require('pleasejs');
 let md5 = require('md5');
 
-let styles = require('./style.css');
+let styles = require('./style.scss');
 
 function hexToRgb(hex) {
-  // TODO better error
-  if (! hex.startsWith('#') || hex.length !== 7) {
-    throw 'HEX value error';
-  }
   let r = parseInt(hex.substring(1, 3), 16);
   let g = parseInt(hex.substring(3, 5), 16);
   let b = parseInt(hex.substring(5, 7), 16);
@@ -160,12 +156,7 @@ class App {
     return bits;
   }
 
-  randomPattern() {
-    this.resetCanvas();
-
-    // TODO don't hard code number of bits
-    let bits = this.randomBits(15);
-    // TODO double check that Map is ordered
+  drawByBits(bits) {
     for (let i = 0; i <= this.cells.size; i++) {
       let cell = this.cells.get(i);
       let col = i % this.config.cols;
@@ -197,11 +188,20 @@ class App {
     }
   }
 
-  // TODO generic method for grids other than 5 x 5
+  randomPattern() {
+    this.resetCanvas();
+    // TODO don't hard code number of bits
+    let bits = this.randomBits(15);
+    this.drawByBits(bits);
+  }
+
+  // TODO more generic method for grids other than mirrored 5 x 5
   digest(string) {
     this.resetCanvas();
     let hash = md5(string);
-    // TODO use first two chars for offset into cells
+    // use first two chars of hash as offset into cells
+    let offset = parseInt(hash.substring(0, 2), 16) % 15;
+    // use entire hash as seed for color
     this.config.color = generateColor(hash);
     this.config.highlightColor = hexToRgbaString(this.config.color,
       this.config.highlightAlpha);
@@ -210,40 +210,15 @@ class App {
     inputContainer.style.backgroundColor = this.config.color;
     input.value = this.config.color;
     let bits = [];
+    // use char pairs 3-32 to set cells on/off
     for (let i = 2; i < 32; i += 2) {
       let substring = hash.substring(i, i + 2);
       bits.push(parseInt(substring, 16) % 2 === 0);
     }
-    // TODO Dedupe code (randomPattern)
-    for (let i = 0; i <= this.cells.size; i++) {
-      let cell = this.cells.get(i);
-      let col = i % this.config.cols;
-      let mirrorAxis = Math.floor(this.config.cols / 2);
-      if (col <= mirrorAxis) {
-        let bit = bits.shift();
-        if (bit) {
-          cell.isActive = true;
-          this.drawRect(
-            cell.x,
-            cell.y,
-            this.config.cellWidth,
-            this.config.cellHeight,
-            this.config.color
-          );
-          let mirrorCell = this.getMirrorCell(cell);
-          if (mirrorCell) {
-            mirrorCell.isActive = true;
-            this.drawRect(
-              mirrorCell.x,
-              mirrorCell.y,
-              this.config.cellWidth,
-              this.config.cellHeight,
-              this.config.color
-            );
-          }
-        }
-      }
-    }
+    // reorder bits based on offset
+    bits = [...bits.slice(bits.length - offset, bits.length),
+      ...bits.slice(0, bits.length - offset)];
+    this.drawByBits(bits);
   }
 
   getRelativeCoords(x, y) {
@@ -452,7 +427,6 @@ class App {
         }
       }
     });
-
     //console.log(this);
   }
 }
