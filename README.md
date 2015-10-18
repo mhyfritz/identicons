@@ -4,14 +4,9 @@
 
 - DIY -- draw it yourself
 - random generator
-- string digest
+- string digest (custom algorithm, i.e. different from GitHub's)
 
-## Building & running
-```bash
-$ npm install
-$ npm run build
-```
-
-...and now, open `index.html`.
+## Running the app
+...is as simple as opening `dist/index.html`.
 
 ![App screenshot](/img/app.png)

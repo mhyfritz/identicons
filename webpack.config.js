@@ -4,7 +4,7 @@ var precss = require('precss');
 module.exports = {
   entry: __dirname + '/src/index.js',
   output: {
-    path: __dirname,
+    path: __dirname + '/dist',
     filename: 'bundle.js'
   },
   module: {
