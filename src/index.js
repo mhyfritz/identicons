@@ -62,7 +62,6 @@ class App {
     this.config = config;
     this.parentSelector = parentSelector;
     this.canvas = null;
-    this.canvasClientRect = null;
     this.ctx = null;
     this.previousCell = null;
     this.cells = new Map();
@@ -222,8 +221,11 @@ class App {
   }
 
   getRelativeCoords(x, y) {
-    let relX = x - this.canvasClientRect.left;
-    let relY = y - this.canvasClientRect.top;
+    // recompute position of canvas everytime as it might have shifted
+    // due to viewport resizing
+    let canvasClientRect = this.canvas.getBoundingClientRect();
+    let relX = x - canvasClientRect.left;
+    let relY = y - canvasClientRect.top;
     return [relX, relY];
   }
 
@@ -240,7 +242,6 @@ class App {
     });
 
     append(document.querySelector(this.parentSelector), this.canvas);
-    this.canvasClientRect = this.canvas.getBoundingClientRect();
     this.ctx = this.canvas.getContext('2d');
     this.resetCanvas();
 
