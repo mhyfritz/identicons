@@ -1,7 +1,17 @@
+![Examples](/img/examples.png)
+
 # GitHub-style identicons
 
 - DIY -- draw it yourself
 - random generator
 - string digest
 
-Tested in recent versions of Chrome and Firefox.
+## Building & running
+```bash
+$ npm install
+$ npm run build
+```
+
+...and now, open `index.html`.
+
+![App screenshot](/img/app.png)
