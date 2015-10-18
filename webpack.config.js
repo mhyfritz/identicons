@@ -2,7 +2,7 @@ var autoprefixer = require('autoprefixer');
 var precss = require('precss');
 
 module.exports = {
-  entry: __dirname + '/index.js',
+  entry: __dirname + '/src/index.js',
   output: {
     path: __dirname,
     filename: 'bundle.js'
@@ -15,12 +15,13 @@ module.exports = {
           'style-loader',
           'css-loader',
           'postcss-loader'
-        ]
+        ],
+        include: __dirname + '/src/'
       },
       {
         test: /\.js/,
         loaders: ['babel-loader'],
-        include: __dirname + '/index.js'
+        include: __dirname + '/src/'
       }
     ]        
   },
