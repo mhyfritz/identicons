@@ -1,6 +1,6 @@
 {
   "name": "identicons",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "GitHub-style identicon generator",
   "main": "index.js",
   "scripts": {
